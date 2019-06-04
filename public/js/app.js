@@ -1869,17 +1869,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 
 
 
-
-
-function rand(n) {
-  var max = n + 0.01;
-  var min = n - 0.01;
-  return Math.random() * (max - min) + min;
-}
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
@@ -1887,37 +1884,83 @@ function rand(n) {
     "v-tilelayer": vue2_leaflet__WEBPACK_IMPORTED_MODULE_0__["LTileLayer"],
     LIconDefault: vue2_leaflet__WEBPACK_IMPORTED_MODULE_0__["LIconDefault"],
     LPopup: vue2_leaflet__WEBPACK_IMPORTED_MODULE_0__["LPopup"],
-    LMovingMarker: vue2_leaflet_movingmarker__WEBPACK_IMPORTED_MODULE_4___default.a
+    LMovingMarker: vue2_leaflet_movingmarker__WEBPACK_IMPORTED_MODULE_4___default.a,
+    LPolyline: vue2_leaflet__WEBPACK_IMPORTED_MODULE_0__["LPolyline"]
+  },
+  computed: {
+    edited_locations: function edited_locations() {
+      var _this = this;
+
+      return this.locations.map(function (location, index) {
+        var iconeMarker = null; // Si c est la première position du robot /
+
+        if (index === 0) {
+          // On  centre la carte sur ce point 
+          _this.center = leaflet__WEBPACK_IMPORTED_MODULE_3___default.a.latLng(location.latitude, location.longitude); // On change l'icon de cette position là
+
+          iconeMarker = leaflet__WEBPACK_IMPORTED_MODULE_3___default.a.icon({
+            iconUrl: "./../images/marker_start.png",
+            iconSize: [21, 31],
+            iconAnchor: [10.5, 31],
+            popupAnchor: [4, -25]
+          });
+        } // Si c est la dernière position du robot /
+
+
+        if (index === _this.locations.length - 1) {
+          // On  centre la carte sur ce point 
+          _this.center = leaflet__WEBPACK_IMPORTED_MODULE_3___default.a.latLng(location.latitude, location.longitude); // On change l'icon de cette position là
+
+          iconeMarker = leaflet__WEBPACK_IMPORTED_MODULE_3___default.a.icon({
+            iconUrl: "./../images/marker_actual.png",
+            iconSize: [21, 31],
+            iconAnchor: [10.5, 31],
+            popupAnchor: [4, -25]
+          });
+        }
+
+        return {
+          id: location.id,
+          latlng: leaflet__WEBPACK_IMPORTED_MODULE_3___default.a.latLng(location.latitude, location.longitude),
+          icon: iconeMarker,
+          text: "Position { ".concat(location.latitude, "  /  ").concat(location.longitude, " }")
+        };
+      });
+    },
+    polylinesElts: function polylinesElts() {
+      return this.locations.map(function (location, index) {
+        return [location.latitude, location.longitude];
+      });
+    }
   },
   data: function data() {
     var locations = [];
-
-    for (var i = 0; i < 10; i++) {
-      locations.push({
-        id: i,
-        latlng: leaflet__WEBPACK_IMPORTED_MODULE_3___default.a.latLng(rand(48.8399515), rand(2.3927873)),
-        text: "Moving Marker #" + i
-      });
-    }
-
     var icon = leaflet__WEBPACK_IMPORTED_MODULE_3___default.a.icon({
-      iconUrl: "https://s3-eu-west-1.amazonaws.com/ct-documents/emails/A-static.png",
+      iconUrl: "./../images/marker.png",
       iconSize: [21, 31],
       iconAnchor: [10.5, 31],
       popupAnchor: [4, -25]
     });
     return {
-      zoom: 10,
+      zoom: 14,
       locations: locations,
       icon: icon,
       center: leaflet__WEBPACK_IMPORTED_MODULE_3___default.a.latLng(48.8399515, 2.3927873),
       mapData: {
         attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>, &copy; <a href=\"https://carto.com/attribution\">CARTO</a>",
         url: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/voyager/{z}/{x}/{y}.png"
-      }
+      },
+      // Couleur de la ligne
+      polyline_color: "orange"
     };
   },
   mounted: function mounted() {
+    var _this2 = this;
+
+    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post(server_api + "/all").then(function (success) {
+      _this2.locations = success.data.all_locations;
+      console.log(success);
+    });
     /*setInterval(() => {
         this.locations.forEach(location => {
           location.latlng = L.latLng(rand(48.8399515), rand(2.3927873))
@@ -1925,9 +1968,13 @@ function rand(n) {
       }, 2000);*/
   },
   created: function created() {
+    var _this3 = this;
+
     Echo.channel("location") // SendPosition event listener
     .listen("SendPosition", function (e) {
       console.log(e);
+
+      _this3.locations.push(e.location);
     });
   }
 });
@@ -64948,204 +64995,191 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("nav", { staticClass: "navbar navbar-expand-md navbar-dark bg-dark" }, [
-      _c(
-        "a",
-        {
-          staticClass: "navbar-brand",
-          attrs: { href: "http://www.sitesbyirala.hol.es" }
-        },
-        [
-          _c(
-            "svg",
-            {
-              attrs: {
-                xmlns: "http://www.w3.org/2000/svg",
-                width: "64",
-                height: "64",
-                viewBox: "0 0 64.000001 64.000001"
-              }
-            },
-            [
-              _c("path", {
+    _c(
+      "nav",
+      { staticClass: "navbar navbar-expand-md navbar-dark bg-dark" },
+      [
+        _c(
+          "router-link",
+          { staticClass: "navbar-brand", attrs: { to: { name: "home" } } },
+          [
+            _c(
+              "svg",
+              {
                 attrs: {
-                  d:
-                    "M.044 24.19l3.984 1.077 19.51 33.648-1.078 3.937zM63.875 39.283l-3.984-1.078L40.383 4.558 41.46.62zM.9 22.446l3.992 1.05 33.796-19.43L39.732.12z",
-                  fill: "#2b2a30",
-                  "fill-rule": "evenodd"
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "64",
+                  height: "64",
+                  viewBox: "0 0 64.000001 64.000001"
                 }
-              }),
-              _vm._v(" "),
-              _c("path", {
-                attrs: {
-                  d:
-                    "M510.785 347.705l-29.636-7.826L230.22 484.79l-7.758 29.436z",
-                  fill: "#2b2a30",
-                  "fill-rule": "evenodd",
-                  stroke: "#2b2a30",
-                  transform: "matrix(.13468 0 0 .13407 -5.013 -5.203)"
-                }
-              }),
-              _vm._v(" "),
-              _c("path", {
-                attrs: {
-                  d:
-                    "M207.565 491.087L54.162 224.57M495.34 344.147L229.233 498.255",
-                  fill: "#2b2a30",
-                  "fill-rule": "evenodd",
-                  stroke: "#f60",
-                  transform: "matrix(.13468 0 0 .13407 -5.013 -5.203)"
-                }
-              }),
-              _vm._v(" "),
-              _c("g", { attrs: { fill: "#f60", "fill-rule": "evenodd" } }, [
+              },
+              [
                 _c("path", {
                   attrs: {
                     d:
-                      "M3.075 23.01l1.817.485L38.687 4.067l.504-1.91zM61.876 38.755l-1.365-.373L40.558 3.91l.33-1.31zM2.077 24.737l1.856.498 19.58 33.81-.502 1.845zM61.963 40.87l-1.92-.505-34.187 19.608-.504 1.972z"
+                      "M.044 24.19l3.984 1.077 19.51 33.648-1.078 3.937zM63.875 39.283l-3.984-1.078L40.383 4.558 41.46.62zM.9 22.446l3.992 1.05 33.796-19.43L39.732.12z",
+                    fill: "#2b2a30",
+                    "fill-rule": "evenodd"
+                  }
+                }),
+                _vm._v(" "),
+                _c("path", {
+                  attrs: {
+                    d:
+                      "M510.785 347.705l-29.636-7.826L230.22 484.79l-7.758 29.436z",
+                    fill: "#2b2a30",
+                    "fill-rule": "evenodd",
+                    stroke: "#2b2a30",
+                    transform: "matrix(.13468 0 0 .13407 -5.013 -5.203)"
+                  }
+                }),
+                _vm._v(" "),
+                _c("path", {
+                  attrs: {
+                    d:
+                      "M207.565 491.087L54.162 224.57M495.34 344.147L229.233 498.255",
+                    fill: "#2b2a30",
+                    "fill-rule": "evenodd",
+                    stroke: "#f60",
+                    transform: "matrix(.13468 0 0 .13407 -5.013 -5.203)"
+                  }
+                }),
+                _vm._v(" "),
+                _c("g", { attrs: { fill: "#f60", "fill-rule": "evenodd" } }, [
+                  _c("path", {
+                    attrs: {
+                      d:
+                        "M3.075 23.01l1.817.485L38.687 4.067l.504-1.91zM61.876 38.755l-1.365-.373L40.558 3.91l.33-1.31zM2.077 24.737l1.856.498 19.58 33.81-.502 1.845zM61.963 40.87l-1.92-.505-34.187 19.608-.504 1.972z"
+                    }
+                  })
+                ]),
+                _vm._v(" "),
+                _c("path", {
+                  attrs: {
+                    d:
+                      "M3.28 24.195L40.067 3.052l21.24 36.62L24.52 60.817 3.28 24.196z",
+                    fill: "#2b2a30"
+                  }
+                }),
+                _vm._v(" "),
+                _c("path", {
+                  attrs: {
+                    d:
+                      "M30.575 9.407c-.458.003-.917.027-1.373.074v6.623h2.36l.2-.01.17.01h.213v.012c3.693.222 6.584 3.567 6.59 7.62 0 4.22-3.122 7.642-6.972 7.642-.877-.002-1.746-.187-2.56-.543V43.47l5.926 11.256 6.65-3.82-6.078-11.81c5.868-2.207 9.774-7.944 9.782-14.367 0-8.463-6.675-15.323-14.91-15.323z",
+                    fill: "#d45500"
+                  }
+                }),
+                _vm._v(" "),
+                _c("path", {
+                  attrs: {
+                    d:
+                      "M29.283 9.244l-9.846 4.964v1.897h9.855zm-9.67 8.51V52.17h9.677V17.754z",
+                    fill: "#f60"
                   }
                 })
-              ]),
-              _vm._v(" "),
-              _c("path", {
-                attrs: {
-                  d:
-                    "M3.28 24.195L40.067 3.052l21.24 36.62L24.52 60.817 3.28 24.196z",
-                  fill: "#2b2a30"
-                }
-              }),
-              _vm._v(" "),
-              _c("path", {
-                attrs: {
-                  d:
-                    "M30.575 9.407c-.458.003-.917.027-1.373.074v6.623h2.36l.2-.01.17.01h.213v.012c3.693.222 6.584 3.567 6.59 7.62 0 4.22-3.122 7.642-6.972 7.642-.877-.002-1.746-.187-2.56-.543V43.47l5.926 11.256 6.65-3.82-6.078-11.81c5.868-2.207 9.774-7.944 9.782-14.367 0-8.463-6.675-15.323-14.91-15.323z",
-                  fill: "#d45500"
-                }
-              }),
-              _vm._v(" "),
-              _c("path", {
-                attrs: {
-                  d:
-                    "M29.283 9.244l-9.846 4.964v1.897h9.855zm-9.67 8.51V52.17h9.677V17.754z",
-                  fill: "#f60"
-                }
-              })
-            ]
-          )
-        ]
-      ),
-      _vm._v(" "),
-      _vm._m(0),
-      _vm._v(" "),
-      _c(
-        "div",
-        {
-          staticClass: "collapse navbar-collapse",
-          attrs: { id: "navbarTogglerDemo02" }
-        },
-        [
-          _c("ul", { staticClass: "navbar-nav ml-auto mt-2 mt-lg-0" }, [
-            _c(
-              "li",
-              { staticClass: "nav-item" },
-              [
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "nav-link",
-                    attrs: {
-                      to: { name: "home" },
-                      "router-link-active": "active"
-                    }
-                  },
-                  [_vm._v("Accueil")]
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "li",
-              { staticClass: "nav-item" },
-              [
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "nav-link",
-                    attrs: {
-                      to: { name: "livetracking" },
-                      "router-link-active": "active"
-                    }
-                  },
-                  [
-                    _c("span", { staticClass: "live-stream" }),
-                    _vm._v("\n              Tracking Live")
-                  ]
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "li",
-              { staticClass: "nav-item" },
-              [
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "nav-link",
-                    attrs: {
-                      to: { name: "statistics" },
-                      "router-link-active": "active"
-                    }
-                  },
-                  [_vm._v("Statistiques")]
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "li",
-              { staticClass: "nav-item" },
-              [
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "nav-link",
-                    attrs: {
-                      to: { name: "about" },
-                      "router-link-active": "active"
-                    }
-                  },
-                  [_vm._v("A propos de nous !")]
-                )
-              ],
-              1
-            ),
-            _vm._v(" "),
-            _c(
-              "li",
-              { staticClass: "nav-item" },
-              [
-                _c(
-                  "router-link",
-                  {
-                    staticClass: "nav-link",
-                    attrs: {
-                      to: { name: "statistics" },
-                      "router-link-active": "active"
-                    }
-                  },
-                  [_vm._v("Aide")]
-                )
-              ],
-              1
+              ]
             )
-          ])
-        ]
-      )
-    ]),
+          ]
+        ),
+        _vm._v(" "),
+        _vm._m(0),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass: "collapse navbar-collapse",
+            attrs: { id: "navbarTogglerDemo02" }
+          },
+          [
+            _c("ul", { staticClass: "navbar-nav ml-auto mt-2 mt-lg-0" }, [
+              _c(
+                "li",
+                { staticClass: "nav-item" },
+                [
+                  _c(
+                    "router-link",
+                    {
+                      staticClass: "nav-link",
+                      attrs: { to: { name: "home" } }
+                    },
+                    [_vm._v("Accueil")]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "li",
+                { staticClass: "nav-item" },
+                [
+                  _c(
+                    "router-link",
+                    {
+                      staticClass: "nav-link",
+                      attrs: { to: { name: "livetracking" } }
+                    },
+                    [
+                      _c("span", { staticClass: "live-stream" }),
+                      _vm._v("\n              Tracking Live")
+                    ]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "li",
+                { staticClass: "nav-item" },
+                [
+                  _c(
+                    "router-link",
+                    {
+                      staticClass: "nav-link",
+                      attrs: { to: { name: "statistics" } }
+                    },
+                    [_vm._v("Statistiques")]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "li",
+                { staticClass: "nav-item" },
+                [
+                  _c(
+                    "router-link",
+                    {
+                      staticClass: "nav-link",
+                      attrs: { to: { name: "about" } }
+                    },
+                    [_vm._v("A propos de nous !")]
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "li",
+                { staticClass: "nav-item" },
+                [
+                  _c(
+                    "router-link",
+                    {
+                      staticClass: "nav-link",
+                      attrs: { to: { name: "statistics" } }
+                    },
+                    [_vm._v("Aide")]
+                  )
+                ],
+                1
+              )
+            ])
+          ]
+        )
+      ],
+      1
+    ),
     _vm._v(" "),
     _c("div", { staticClass: "container" }, [_c("router-view")], 1)
   ])
@@ -65241,12 +65275,20 @@ var render = function() {
             }
           }),
           _vm._v(" "),
-          _vm._l(_vm.locations, function(l) {
+          _c("l-polyline", {
+            attrs: { "lat-lngs": _vm.polylinesElts, color: _vm.polyline_color }
+          }),
+          _vm._v(" "),
+          _vm._l(_vm.edited_locations, function(l) {
             return _c(
               "l-moving-marker",
               {
                 key: l.id,
-                attrs: { "lat-lng": l.latlng, duration: 2000, icon: _vm.icon }
+                attrs: {
+                  "lat-lng": l.latlng,
+                  duration: 2000,
+                  icon: l.icon != null ? l.icon : _vm.icon
+                }
               },
               [_c("l-popup", { attrs: { content: l.text } })],
               1
@@ -105482,6 +105524,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
+window.server_api = "http://localhost:8000/api";
 
 
 

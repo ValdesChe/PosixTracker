@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <a class="navbar-brand" href="http://www.sitesbyirala.hol.es">
+        <router-link  :to="{name:'home'}" class="navbar-brand">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="64"
@@ -45,7 +45,7 @@
               fill="#f60"
             ></path>
           </svg>
-        </a>
+        </router-link >
         <button
           class="navbar-toggler"
           type="button"
@@ -60,21 +60,21 @@
         <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
           <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
             <li class="nav-item">
-              <router-link class="nav-link" :to="{name:'home'}" router-link-active="active">Accueil</router-link>
+              <router-link class="nav-link" :to="{name:'home'}">Accueil</router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" :to="{name:'livetracking'}" router-link-active="active">
+              <router-link class="nav-link" :to="{name:'livetracking'}">
                 <span class="live-stream"></span>
                 Tracking Live</router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" :to="{name:'statistics'}" router-link-active="active">Statistiques</router-link>
+              <router-link class="nav-link" :to="{name:'statistics'}">Statistiques</router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" :to="{name:'about'}"  router-link-active="active">A propos de nous !</router-link>
+              <router-link class="nav-link" :to="{name:'about'}" >A propos de nous !</router-link>
             </li>
             <li class="nav-item">
-              <router-link class="nav-link" :to="{name:'statistics'}"  router-link-active="active">Aide</router-link>
+              <router-link class="nav-link" :to="{name:'statistics'}" >Aide</router-link>
             </li>
           </ul>
         </div>
