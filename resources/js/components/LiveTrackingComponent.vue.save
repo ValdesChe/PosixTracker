@@ -108,7 +108,7 @@ export default {
     };
   },
   mounted() {
-    axios.post(server_api + "/all").then(success => {
+    axios.post("http://roposix.epizy.com/?page=all").then(success => {
       this.locations = success.data.all_locations;
       console.log(success);
     });

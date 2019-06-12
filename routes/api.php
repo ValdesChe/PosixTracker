@@ -21,7 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 */
 
 
-Route::post('/publish', function (Request $request) {
+Route::get('/publish', function (Request $request) {
     
 
     // Verification du formulaire
@@ -83,7 +83,7 @@ Route::post('/specail_day', function (Request $request) {
      * Validate Request when Creating or Updating a Car
      * 
      */
-    function validateRequest(Request $request)
+    function validRequest(Request $request)
     {
             $rule = [
                 'description' => ['string', 'min:2', 'max:191'],

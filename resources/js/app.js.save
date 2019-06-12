@@ -7,7 +7,7 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
-window.server_api = "http://185.181.160.12:80/api";
+window.server_api = "server_api + ":80";
 
 import VueRouter from 'vue-router';
 import LiveTrackingComponent from './components/LiveTrackingComponent.vue';
